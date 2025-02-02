@@ -1,20 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { TrashIcon, PencilIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  TrashIcon,
+  PencilIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
 
 const AdminDashboard = () => {
   const [faqs, setFaqs] = useState([]);
   const [selectedFAQ, setSelectedFAQ] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchFAQs = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_API_KEY}/api/faqs`, {
-          headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
-        });
+        const response = await axios.get(
+          `${import.meta.env.VITE_REACT_APP_BACKEND_API_KEY}/api/faqs`,
+          {
+            headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
+          }
+        );
         setFaqs(response.data);
       } catch (error) {
         console.error("Failed to fetch FAQs", error);
@@ -22,55 +29,55 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
-    
+
     fetchFAQs();
   }, []);
 
   const handleDelete = async (id) => {
-    if (!id) {
-      console.error("Invalid FAQ ID");
-      return;
-    }
-  
+    if (!id) return console.error("Invalid FAQ ID");
+
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_API_KEY}/api/faqs/${id}`);
+      const response = await axios.delete(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_API_KEY}/api/faqs/${id}`
+      );
       if (response.status === 200) {
-        // Update local state to immediately remove the deleted FAQ
-        setFaqs(prevFaqs => prevFaqs.filter(faq => faq._id !== id));
+        setFaqs((prevFaqs) => prevFaqs.filter((faq) => faq._id !== id));
       }
     } catch (error) {
       console.error("Delete failed", error.response?.data || error.message);
     }
   };
-  
+
   const handleAddFAQ = async (newFAQ) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_API_KEY}/api/faqs`, newFAQ);
+      const response = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_API_KEY}/api/faqs`,
+        newFAQ
+      );
       if (response.status === 201) {
-        // Immediately update the state with the newly added FAQ
-        setFaqs(prevFaqs => [response.data, ...prevFaqs]);
+        setFaqs((prevFaqs) => [response.data, ...prevFaqs]);
       }
     } catch (error) {
       console.error("Failed to add FAQ", error.response?.data || error.message);
     }
   };
-  
 
-  const filteredFAQs = faqs.filter(faq => 
+  const filteredFAQs = faqs.filter((faq) =>
     faq.question.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header Section */}
+      
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-t-lg p-6 shadow-lg">
-        <h2 className="text-3xl font-bold text-white">FAQ Management Dashboard</h2>
-        <p className="text-blue-100 mt-2">Manage and organize your multilingual FAQs</p>
+        <h2 className="text-3xl font-bold text-white">Admin Dashboard</h2>
+        
       </div>
 
-      {/* Search and Stats Section */}
+      
       <div className="bg-white p-6 border-x shadow-md">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          
           <div className="relative w-full md:w-96">
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
             <input
@@ -81,6 +88,8 @@ const AdminDashboard = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          
           <div className="flex gap-4">
             <div className="bg-blue-50 p-3 rounded-lg">
               <p className="text-sm text-blue-600">Total FAQs</p>
@@ -89,14 +98,14 @@ const AdminDashboard = () => {
             <div className="bg-green-50 p-3 rounded-lg">
               <p className="text-sm text-green-600">Languages</p>
               <p className="text-2xl font-bold text-green-800">
-                {new Set(faqs.map(faq => faq.language)).size}
+                {new Set(faqs.map((faq) => faq.language)).size}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* FAQ List Section */}
+      
       <div className="bg-white p-6 rounded-b-lg border-x border-b shadow-md">
         {loading ? (
           <div className="text-center py-8">
@@ -106,43 +115,55 @@ const AdminDashboard = () => {
         ) : (
           <div className="space-y-4">
             {filteredFAQs.map((faq) => (
-              <div 
-                key={faq._id} 
+              <div
+                key={faq._id}
                 className="bg-white p-4 rounded-lg border hover:shadow-md transition-shadow duration-200"
               >
                 <div className="flex justify-between items-start">
+                  {/* FAQ Info */}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg text-gray-800">{faq.question}</h3>
+                    <h3 className="font-semibold text-lg text-gray-800">
+                      {faq.question}
+                    </h3>
                     <div className="mt-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium
-  ${faq.language === 'en' ? 'bg-blue-100 text-blue-800' :
-    faq.language === 'hi' ? 'bg-green-100 text-green-800' :
-    faq.language === 'bn' ? 'bg-red-100 text-red-800' : // Bengali added here
-    'bg-purple-100 text-purple-800'}`}>
-  {faq.language?.toUpperCase()}
-</span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          faq.language === "en"
+                            ? "bg-blue-100 text-blue-800"
+                            : faq.language === "hi"
+                            ? "bg-green-100 text-green-800"
+                            : faq.language === "bn"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-purple-100 text-purple-800"
+                        }`}
+                      >
+                        {faq.language?.toUpperCase()}
+                      </span>
                     </div>
                   </div>
+
+                  
                   <div className="flex space-x-2 ml-4">
-                    <button 
-                      onClick={() => setSelectedFAQ(faq)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-200"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(faq._id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors duration-200"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
+                  <button 
+  onClick={() => setSelectedFAQ(faq)}
+  className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-200 cursor-pointer"
+>
+  <PencilIcon className="h-5 w-5" />
+</button>
+<button 
+  onClick={() => handleDelete(faq._id)}
+  className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors duration-200 cursor-pointer"
+>
+  <TrashIcon className="h-5 w-5" />
+</button>
+
                   </div>
                 </div>
               </div>
             ))}
             {filteredFAQs.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                {searchTerm ? 'No FAQs match your search' : 'No FAQs available'}
+                {searchTerm ? "No FAQs match your search" : "No FAQs available"}
               </div>
             )}
           </div>
@@ -150,6 +171,6 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-}
+};
 
 export default AdminDashboard;
